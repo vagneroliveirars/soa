@@ -24,5 +24,6 @@
   </dependencies>
   <modules>
     <module>soa-cap01</module>
+      <module>soa-cap01-client</module>
   </modules>
 </project>
