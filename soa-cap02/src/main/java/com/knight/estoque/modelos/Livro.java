@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 public class Livro {
 
 	private Integer anoDePublicacao;
-	
+
 	@XmlElementWrapper(name = "autores")
 	@XmlElement(name = "autor")
 	private List<String> autores;
@@ -19,9 +19,12 @@ public class Livro {
 	private String nome;
 	private String resumo;
 
+	public Livro() {
+	}
+
 	public Livro(Integer anoDePublicacao, List<String> autores, String editora,
 			String nome, String resumo) {
-
+		super();
 		this.anoDePublicacao = anoDePublicacao;
 		this.autores = autores;
 		this.editora = editora;
