@@ -27,5 +27,6 @@
       <module>soa-cap01-client</module>
     <module>soa-cap02</module>
     <module>soa-cap02-client</module>
+    <module>soa-cap03</module>
   </modules>
 </project>
