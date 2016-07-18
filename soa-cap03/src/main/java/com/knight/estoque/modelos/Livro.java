@@ -14,12 +14,16 @@ public class Livro {
 	
 	@XmlElementWrapper(name = "autores")
 	@XmlElement(name = "autor")
-	private List<String> autores;
+	private List<Autor> autores;
 	private String editora;
 	private String nome;
 	private String resumo;
+	
+	public Livro() {
 
-	public Livro(Integer anoDePublicacao, List<String> autores, String editora,
+	}
+
+	public Livro(Integer anoDePublicacao, List<Autor> autores, String editora,
 			String nome, String resumo) {
 
 		this.anoDePublicacao = anoDePublicacao;
@@ -37,11 +41,11 @@ public class Livro {
 		this.anoDePublicacao = anoDePublicacao;
 	}
 
-	public List<String> getAutores() {
+	public List<Autor> getAutores() {
 		return autores;
 	}
 
-	public void setAutores(List<String> autores) {
+	public void setAutores(List<Autor> autores) {
 		this.autores = autores;
 	}
 
