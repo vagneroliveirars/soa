@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.knight.estoque.modelos.Autor;
+import com.knight.estoque.modelos.EBook;
 import com.knight.estoque.modelos.Livro;
 
 public class LivroDAO {
@@ -22,6 +23,12 @@ public class LivroDAO {
 		livros.add(new Livro(2012, new ArrayList<>(Arrays.asList(new Autor(
 				"Vinícius Baggio Fuentes", new Date()))), "Casa do Código",
 				"Ruby on Rails", "Crie rapidamente aplicações web"));
+		
+		EBook eBook = new EBook(2012, new ArrayList<Autor>(
+				Arrays.asList(new Autor("Alexandre Saudade", new Date()))), 
+				"Casa do Código", "SOA Aplicado", "Aprenda SOA de forma prática");
+		
+		livros.add(eBook);
 	}
 	
 	public List<Livro> listarLivros() {

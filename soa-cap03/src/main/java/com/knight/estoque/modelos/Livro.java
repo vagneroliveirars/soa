@@ -1,23 +1,31 @@
 package com.knight.estoque.modelos;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.knight.estoque.adaptadores.AdaptadorAutores;
 
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlSeeAlso({EBook.class})
 public class Livro {
 
 	private Integer anoDePublicacao;
 	
 	@XmlElementWrapper(name = "autores")
 	@XmlElement(name = "autor")
+	@XmlJavaTypeAdapter(value = AdaptadorAutores.class)
 	private List<Autor> autores;
 	private String editora;
 	private String nome;
 	private String resumo;
+	private Date dataDeCriacao = new Date();
 	
 	public Livro() {
 
@@ -71,6 +79,14 @@ public class Livro {
 
 	public void setResumo(String resumo) {
 		this.resumo = resumo;
+	}
+
+	public Date getDataDeCriacao() {
+		return dataDeCriacao;
+	}
+
+	public void setDataDeCriacao(Date dataDeCriacao) {
+		this.dataDeCriacao = dataDeCriacao;
 	}
 
 }
