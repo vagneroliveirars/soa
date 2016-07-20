@@ -28,5 +28,6 @@
     <module>soa-cap02</module>
     <module>soa-cap02-client</module>
     <module>soa-cap03</module>
+    <module>soa-cap04-jetty</module>
   </modules>
 </project>
