@@ -64,14 +64,17 @@ public class Autor {
 			List<URL> responseList = new ArrayList<>();
 			JSONObject jsonObject = JSONObject.fromObject(getMethod
 					.getResponseBodyAsString());
-			JSONArray results = jsonObject.getJSONObject("responseData")
-					.getJSONArray("results");
-			for (int i = 0; i < results.size(); i++) {
-				String urlCrua = results.getJSONObject(i).getString("unescapedUrl");
-				URL url = new URL(urlCrua);
-				responseList.add(url);
+			
+			if (!jsonObject.getJSONObject("responseData").isNullObject()) {
+				JSONArray results = jsonObject.getJSONObject("responseData")
+						.getJSONArray("results");
+				for (int i = 0; i < results.size(); i++) {
+					String urlCrua = results.getJSONObject(i).getString("unescapedUrl");
+					URL url = new URL(urlCrua);
+					responseList.add(url);
+				}
+				return responseList;
 			}
-			return responseList;
 		}
 
 		return Collections.emptyList();
