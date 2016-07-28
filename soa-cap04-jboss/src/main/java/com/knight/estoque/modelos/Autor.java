@@ -8,6 +8,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -22,8 +26,12 @@ import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.methods.GetMethod;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@Entity
 public class Autor {
-
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	private String nome;
 	private Date dataNascimento;
 	
@@ -78,6 +86,14 @@ public class Autor {
 		}
 
 		return Collections.emptyList();
+	}
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getNome() {

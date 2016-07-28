@@ -42,7 +42,7 @@ public class LivrosService {
 	@WebMethod(operationName="listarLivrosPaginacao")
 	public List<Livro> listarLivros(Integer numeroDaPagina, Integer tamanhoDaPagina) {
 		TypedQuery<Livro> query = this.entityManager.createQuery(
-				"select distinct l from Livro l left join FETCH l.autores",
+				"select distinct 1 from Livro 1 left join FETCH l.autores",
 				Livro.class);
 		
 		query.setFirstResult(numeroDaPagina * tamanhoDaPagina);
