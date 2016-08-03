@@ -30,5 +30,6 @@
     <module>soa-cap03</module>
     <module>soa-cap04-jetty</module>
     <module>soa-cap04-jboss</module>
+    <module>soa-cap05</module>
   </modules>
 </project>
