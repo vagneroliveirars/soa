@@ -1,9 +1,11 @@
 package com.knight.usuarios.modelos;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
 @Entity
-public class Usuario {
+public class Usuario extends EntidadeModelo {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +21,9 @@ public class Usuario {
 	private String nome;
 	private String login;
 	private String senha;
+	
+	@OneToOne(cascade = {CascadeType.ALL}, orphanRemoval = true)
+	private Imagem imagem;
 	
 	public Long getId() {
 		return id;
@@ -50,6 +55,14 @@ public class Usuario {
 
 	public void setSenha(String senha) {
 		this.senha = senha;
+	}
+	
+	public Imagem getImagem() {
+		return imagem;
+	}
+	
+	public void setImagem(Imagem imagem) {
+		this.imagem = imagem;
 	}
 
 }
