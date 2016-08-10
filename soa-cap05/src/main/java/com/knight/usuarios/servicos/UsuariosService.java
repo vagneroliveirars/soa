@@ -40,22 +40,58 @@ public class UsuariosService {
 	@PersistenceContext
 	private EntityManager entityManager;
 	
-	private static final String CAMPO_DESCRICAO_IMAGEM = "Descricao";
+	private static final String CAMPO_DESCRICAO_IMAGEM = "descricao";
 
 	private static final String PARAM_INICIO = "inicio";
 
 	private static final String PARAM_TAMANHO_PAGINA = "tamanhoPagina";
 	
 	@GET
-	public Usuarios listarUsuarios(@HeaderParam("If-Modified-Since") Date modifiedSince,
+	public Response listarUsuarios(@HeaderParam("If-Modified-Since") Date modifiedSince,
 			@QueryParam(PARAM_INICIO) @DefaultValue("0") Integer inicio,
 			@QueryParam(PARAM_TAMANHO_PAGINA) @DefaultValue("20")
 			Integer tamanhoPagina,
 			@Context UriInfo uriInfo) {
 		
+		Collection<Usuario> usuarios = this.entityManager
+				.createQuery("select u from Usuario u", Usuario.class)
+				.setFirstResult(inicio).setMaxResults(tamanhoPagina)
+				.getResultList();
 		
+		/*
+		 * Recuperamos o número de usuários presentes no bd para que possamos
+		 * realizar o cálculo de páginas
+		 */
+		Long numeroUsuarios = this.entityManager.createQuery(
+				"select count(u) from Usuario u", Long.class).getSingleResult();
 		
-		return new Usuarios(this.entityManager.createQuery("select u from Usuario u", Usuario.class).getResultList());
+		boolean atualizado = false;
+		
+		if (modifiedSince != null) {
+			for (Usuario usuario : usuarios) {
+				if (usuario.getDataAtualizacao().after(modifiedSince)) {
+					atualizado = true;
+					break;
+				}
+			}
+		} else {
+			/*
+			 * Se a data não tiver sido passada, deve considerar os recursos
+			 * como mais atuais
+			 */
+			atualizado = true;
+		}
+		
+		if (atualizado) {
+			for (Usuario usuario : usuarios) {
+				Link link = this.criarLinkImagemUsuario(usuario);
+				usuario.adicionarLink(link);
+			}
+			
+			return Response.ok(new Usuarios(usuarios, this.criarLinksUsuarios(uriInfo, tamanhoPagina, inicio, numeroUsuarios))).build();
+		} else {
+			return Response.notModified().build();
+		}
 	}
 	
 	@GET
@@ -66,6 +102,8 @@ public class UsuariosService {
 		if (usuario != null) {
 			if (modifiedSince == null 
 					|| (modifiedSince != null && usuario.getDataAtualizacao().after(modifiedSince))) {
+				
+				usuario.adicionarLink(this.criarLinkImagemUsuario(usuario));
 				return Response.ok(usuario).build();
 			}
 			
@@ -188,6 +226,14 @@ public class UsuariosService {
 		links.add(linkUltimaPagina);
 		
 		return links.toArray(new Link[] {});
+	}
+	
+	private Link criarLinkImagemUsuario(Usuario usuario) {
+		String uri = UriBuilder.fromPath("usuarios/{id}").build(usuario.getId()).toString();
+		String rel = "imagem";
+		String type = "image/*";
+		
+		return new Link(uri, rel, type);		
 	}
 	
 }
