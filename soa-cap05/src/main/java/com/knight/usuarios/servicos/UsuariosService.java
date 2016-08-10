@@ -136,6 +136,10 @@ public class UsuariosService {
 		
 		Imagem imagem = usuario.getImagem();
 		
+		if (imagem == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
 		if (modifiedSince != null && imagem.getDataAtualizacao().before(modifiedSince)) {
 			return Response.notModified().build();
 		}
