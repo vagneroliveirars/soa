@@ -10,16 +10,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -35,23 +27,14 @@ import com.knight.usuarios.modelos.rest.Link;
 @Path("/usuarios")
 @Produces(MediaType.APPLICATION_XML)
 @Consumes(MediaType.APPLICATION_XML)
-public class UsuariosService {
+public class UsuariosService implements UsuariosServiceInterface {
 
 	@PersistenceContext
 	private EntityManager entityManager;
 	
-	private static final String CAMPO_DESCRICAO_IMAGEM = "descricao";
-
-	private static final String PARAM_INICIO = "inicio";
-
-	private static final String PARAM_TAMANHO_PAGINA = "tamanhoPagina";
-	
-	@GET
-	public Response listarUsuarios(@HeaderParam("If-Modified-Since") Date modifiedSince,
-			@QueryParam(PARAM_INICIO) @DefaultValue("0") Integer inicio,
-			@QueryParam(PARAM_TAMANHO_PAGINA) @DefaultValue("20")
-			Integer tamanhoPagina,
-			@Context UriInfo uriInfo) {
+	@Override
+	public Response listarUsuarios(Date modifiedSince, Integer inicio,
+			Integer tamanhoPagina, UriInfo uriInfo) {
 		
 		Collection<Usuario> usuarios = this.entityManager
 				.createQuery("select u from Usuario u", Usuario.class)
@@ -93,10 +76,9 @@ public class UsuariosService {
 			return Response.notModified().build();
 		}
 	}
-	
-	@GET
-	@Path("/{id}")
-	public Response find(@PathParam("id") Long id, @HeaderParam("If-Modified-Since") Date modifiedSince) {
+
+	@Override
+	public Response find(Long id, Date modifiedSince) {
 		Usuario usuario = this.entityManager.find(Usuario.class, id);
 		
 		if (usuario != null) {
@@ -112,9 +94,9 @@ public class UsuariosService {
 
 		return Response.status(Status.NOT_FOUND).build();
 	}
-	
-	@POST
-	public Response create(@Context UriInfo uriInfo, Usuario usuario) {
+
+	@Override
+	public Response create(UriInfo uriInfo, Usuario usuario) {
 		this.entityManager.persist(usuario);
 		
 		// Build URL where the resource is available
@@ -124,10 +106,63 @@ public class UsuariosService {
 		return Response.created(location).build();
 	}
 	
-	@GET
-	@Path("/{id}")
-	@Produces("image/*")
-	public Response recuperarImagem(@PathParam("id") Long id, @HeaderParam("If-Modified-Since") Date modifiedSince) {
+	@Override
+	public Response update(Usuario usuario) {
+		usuario = this.entityManager.merge(usuario);
+		return Response.noContent().build();
+	}
+
+	@Override
+	public Response update(Long id, Usuario usuario) {
+		usuario.setId(id);
+		return update(usuario);
+	}
+
+	@Override
+	public Response delete(Usuario usuario) {
+		usuario = this.entityManager.find(Usuario.class, usuario.getId());
+		
+		if (usuario == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+		this.entityManager.remove(usuario);
+		
+		return Response.noContent().build();
+	}
+
+	@Override
+	public Response delete(Long id) {
+		Usuario usuario = new Usuario();
+		usuario.setId(id);
+		
+		return delete(usuario);
+	}
+	
+	@Override
+	public Response adicionarImagem(String descricao, Long idUsuario,
+			HttpServletRequest httpServletRequest, byte[] dadosImagem) {
+		
+		Usuario usuario = this.entityManager.find(Usuario.class, idUsuario);
+		
+		if (usuario == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+		Imagem imagem = new Imagem();
+		imagem.setDados(dadosImagem);
+		imagem.setDescricao(descricao);
+		imagem.setTipo(httpServletRequest.getContentType());
+		
+		usuario.setImagem(imagem);
+		
+		this.entityManager.merge(usuario);
+		
+		return Response.noContent().build();
+	}
+	
+	@Override
+	public Response recuperarImagem(Long id, Date modifiedSince) {
 		Usuario usuario = this.entityManager.find(Usuario.class, id);
 		
 		if (usuario == null) {
@@ -147,30 +182,12 @@ public class UsuariosService {
 		return Response.ok(imagem.getDados(), imagem.getTipo()).header(CAMPO_DESCRICAO_IMAGEM, imagem.getDescricao()).build();
 	}
 	
-	@PUT
-	@Path("/{id}")
-	@Consumes("image/*")
-	public Response adicionarImagem(@HeaderParam(CAMPO_DESCRICAO_IMAGEM) String descricao,
-			@PathParam("id") Long idUsuario,
-			@Context HttpServletRequest httpServletRequest, 
-			byte[] dadosImagem) {
+	private Link criarLinkImagemUsuario(Usuario usuario) {
+		String uri = UriBuilder.fromPath("usuarios/{id}").build(usuario.getId()).toString();
+		String rel = "imagem";
+		String type = "image/*";
 		
-		Usuario usuario = this.entityManager.find(Usuario.class, idUsuario);
-		
-		if (usuario == null) {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		
-		Imagem imagem = new Imagem();
-		imagem.setDados(dadosImagem);
-		imagem.setDescricao(descricao);
-		imagem.setTipo(httpServletRequest.getContentType());
-		
-		usuario.setImagem(imagem);
-		
-		this.entityManager.merge(usuario);
-		
-		return Response.noContent().build();
+		return new Link(uri, rel, type);		
 	}
 	
 	private Link[] criarLinksUsuarios(UriInfo uriInfo, Integer tamanhoPagina, Integer inicio, Long numeroUsuarios) {
@@ -230,14 +247,6 @@ public class UsuariosService {
 		links.add(linkUltimaPagina);
 		
 		return links.toArray(new Link[] {});
-	}
-	
-	private Link criarLinkImagemUsuario(Usuario usuario) {
-		String uri = UriBuilder.fromPath("usuarios/{id}").build(usuario.getId()).toString();
-		String rel = "imagem";
-		String type = "image/*";
-		
-		return new Link(uri, rel, type);		
 	}
 	
 }
