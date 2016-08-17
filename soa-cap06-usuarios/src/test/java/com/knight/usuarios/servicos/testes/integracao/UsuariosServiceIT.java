@@ -22,7 +22,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class UsuariosServiceIT {
 	
-	private static String SERVICES_CONTEXT = "http://localhost:8080/soa-cap06-usuarios/services";
+	private static String SERVICES_CONTEXT = "https://localhost:8443/soa-cap06-usuarios/services";
 	
 	private static String USUARIOS_CONTEXT = SERVICES_CONTEXT + "/usuarios";
 	
@@ -41,7 +41,7 @@ public class UsuariosServiceIT {
 		Usuario usuario = new Usuario();
 		usuario.setNome("Vagner");
 		usuario.setLogin("admin");
-		usuario.setSenha("123");
+		usuario.setSenha("admin");
 		
 		XStream stream = new XStream(new DomDriver());
 		stream.alias("usuario", Usuario.class);
