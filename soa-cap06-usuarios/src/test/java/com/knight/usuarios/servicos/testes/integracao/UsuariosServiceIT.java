@@ -7,9 +7,16 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
+import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
+import org.jboss.resteasy.util.Base64;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +32,10 @@ public class UsuariosServiceIT {
 	private static String SERVICES_CONTEXT = "https://localhost:8443/soa-cap06-usuarios/services";
 	
 	private static String USUARIOS_CONTEXT = SERVICES_CONTEXT + "/usuarios";
+	
+	private static String USUARIO_ADMIN = "admin";
+	
+	private static String SENHA_ADMIN = "admin";
 	
 	private byte[] imagemTeste;
 	
@@ -47,15 +58,23 @@ public class UsuariosServiceIT {
 		stream.alias("usuario", Usuario.class);
 		String xmlUsuario = stream.toXML(usuario);
 		
-		ClientResponse<?> clientResponse = new ClientRequest(USUARIOS_CONTEXT).body(MediaType.APPLICATION_XML, xmlUsuario).post();
+		ClientResponse<?> clientResponse = new ClientRequest(USUARIOS_CONTEXT)
+				.header("Authorization", criaAutenticacao(USUARIO_ADMIN, SENHA_ADMIN))
+				.body(MediaType.APPLICATION_XML, xmlUsuario).post();
 		
 		Assert.assertEquals(201, clientResponse.getStatus());
 	}
 	
 	@Test
 	public void testeRecepcaoUsuarios() {
+		Credentials credentials = new UsernamePasswordCredentials(USUARIO_ADMIN, SENHA_ADMIN);
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		httpClient.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
+		
+		ClientExecutor clientExecutor = new ApacheHttpClient4Executor(httpClient);
+		
 		UsuariosServiceInterface usuariosServiceInterface = ProxyFactory
-				.create(UsuariosServiceInterface.class, SERVICES_CONTEXT);
+				.create(UsuariosServiceInterface.class, SERVICES_CONTEXT, clientExecutor);
 		
 		@SuppressWarnings("unchecked")
 		ClientResponse<Usuarios> response = (ClientResponse<Usuarios>) usuariosServiceInterface.listarUsuarios(null, null, null, null);
@@ -66,12 +85,15 @@ public class UsuariosServiceIT {
 		
 		Assert.assertNotNull(usuarios);
 		Assert.assertNotNull(usuarios.getUsuarios());
-		Assert.assertEquals(1, usuarios.getUsuarios().size());
+		Assert.assertEquals(6, usuarios.getUsuarios().size());
 	}
 	
 	@Test
 	public void testeRecepcaoUsuariosClientRequest() throws Exception {
-		ClientResponse<Usuario> response = new ClientRequest(USUARIOS_CONTEXT + "/{id}").pathParameters(1).accept(MediaType.APPLICATION_XML).get(Usuario.class);
+		ClientResponse<Usuario> response = new ClientRequest(USUARIOS_CONTEXT + "/{id}")
+				.pathParameters(1)
+				.header("Authorization", criaAutenticacao(USUARIO_ADMIN, SENHA_ADMIN))
+				.get(Usuario.class);
 		
 		Usuario usuario = response.getEntity(Usuario.class);
 		
@@ -112,6 +134,14 @@ public class UsuariosServiceIT {
 		String descricaoImagem = clientResponse.getHeaders().getFirst(UsuariosServiceInterface.CAMPO_DESCRICAO_IMAGEM);
 		
 		Assert.assertEquals("skate", descricaoImagem);
+	}
+	
+	private static String criaAutenticacao(String usuario, String senha) {
+		return "Basic " + encondeUsuarioSenha(usuario, senha);
+	}
+
+	private static String encondeUsuarioSenha(String usuario, String senha) {
+		return Base64.encodeBytes((usuario + ":" + senha).getBytes());
 	}
 
 }
