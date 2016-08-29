@@ -7,9 +7,17 @@ import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.jboss.ws.api.annotation.EndpointConfig;
+import org.jboss.ws.api.annotation.WebContext;
+
 import com.knight.estoque.modelos.Autor;
 
-@WebService
+@WebService(portName = "AutoresServicePort", 
+	serviceName = "AutoresServiceService",
+	targetNamespace = "http://servicos.estoque.knight.com/",
+	wsdlLocation = "WEB-INF/wsdl/AutoresService.wsdl")
+@EndpointConfig(configFile = "WEB-INF/jaxws-endpoint-config.xml", configName = "Endpoint WS-Security")
+@WebContext(secureWSDLAccess = true, transportGuarantee = "CONFIDENTIAL", urlPattern = "AutoresService")
 @Stateless
 public class AutoresService {
 	
