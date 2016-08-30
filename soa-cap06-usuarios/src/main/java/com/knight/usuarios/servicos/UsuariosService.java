@@ -7,11 +7,13 @@ import java.util.Date;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -22,6 +24,8 @@ import com.knight.usuarios.modelos.Imagem;
 import com.knight.usuarios.modelos.Usuario;
 import com.knight.usuarios.modelos.Usuarios;
 import com.knight.usuarios.modelos.rest.Link;
+import com.knight.usuarios.servicos.seguranca.ExcecaoCriptografia;
+import com.knight.usuarios.servicos.seguranca.RSAPublica;
 
 @Stateless
 @Path("/usuarios")
@@ -93,6 +97,43 @@ public class UsuariosService implements UsuariosServiceInterface {
 		}
 
 		return Response.status(Status.NOT_FOUND).build();
+	}
+	
+	@Override
+	public Response find(String login, Date modifiedSince,
+			RSAPublica chaveCriptografica) {
+		
+		Usuario usuario;
+		
+		try {
+			usuario = this.entityManager.createNamedQuery("usuario.encontrar.login", Usuario.class)
+					.setParameter(1, login).getSingleResult();
+		} catch (NoResultException e) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+		this.entityManager.detach(usuario);
+		
+		if (modifiedSince == null 
+				|| (modifiedSince != null && usuario.getDataAtualizacao().after(modifiedSince))) {
+			
+			usuario.adicionarLink(this.criarLinkImagemUsuario(usuario));
+			criptografaSenhaUsuario(usuario, chaveCriptografica);
+			
+			return Response.ok(usuario).build();
+		}
+		
+		return Response.notModified().build();
+	}
+
+	private void criptografaSenhaUsuario(Usuario usuario,
+			RSAPublica chaveCriptografica) {
+		
+		try {
+			usuario.setSenha(chaveCriptografica.encripta(usuario.getSenha().getBytes()));
+		} catch (ExcecaoCriptografia e) {
+			throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@Override

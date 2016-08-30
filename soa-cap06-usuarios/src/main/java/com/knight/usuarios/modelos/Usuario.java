@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -19,9 +21,11 @@ import javax.xml.bind.annotation.XmlTransient;
 import com.knight.usuarios.modelos.rest.Link;
 import com.knight.usuarios.modelos.rest.RESTEntity;
 
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
 @Entity
+@NamedQueries(@NamedQuery(name = "usuario.encontrar.login", query = "select u from Usuario u where u.login = :login"))
 public class Usuario extends EntidadeModelo implements RESTEntity {
 	
 	@Id
