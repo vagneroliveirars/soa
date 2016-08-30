@@ -43,7 +43,7 @@ public class RSAPublica {
 			PublicKey publicKey = criaChave();
 			Cipher cipher = Cipher.getInstance("RSA");
 			cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-			return Base64.encodeBase64String(bytes);
+			return Base64.encodeBase64String(cipher.doFinal(bytes));
 		} catch (Exception e) {
 			throw new ExcecaoCriptografia(e);
 		}

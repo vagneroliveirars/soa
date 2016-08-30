@@ -32,5 +32,6 @@
     <module>soa-cap04-jboss</module>
     <module>soa-cap05</module>
     <module>soa-cap06-estoque</module>
+    <module>soa-cap06-chaves</module>
   </modules>
 </project>

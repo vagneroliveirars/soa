@@ -107,7 +107,7 @@ public class UsuariosService implements UsuariosServiceInterface {
 		
 		try {
 			usuario = this.entityManager.createNamedQuery("usuario.encontrar.login", Usuario.class)
-					.setParameter(1, login).getSingleResult();
+					.setParameter("login", login).getSingleResult();
 		} catch (NoResultException e) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
