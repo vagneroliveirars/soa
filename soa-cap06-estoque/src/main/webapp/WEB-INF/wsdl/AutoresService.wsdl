@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <wsdl:definitions name="AutoresServiceService"
 	targetNamespace="http://servicos.estoque.knight.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://servicos.estoque.knight.com/"
@@ -9,14 +10,14 @@
 		<xs:schema elementFormDefault="unqualified"
 			targetNamespace="http://servicos.estoque.knight.com/" version="1.0"
 			xmlns:tns="http://servicos.estoque.knight.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-			<xs:element name="listarAutores" type="tns:listarAutores" />
-			<xs:element name="listarAutoresResponse" type="tns:listarAutoresResponse" />
-			<xs:complexType name="listarAutores">
+			<xs:element name="listaAutores" type="tns:listaAutores" />
+			<xs:element name="listaAutoresResponse" type="tns:listaAutoresResponse" />
+			<xs:complexType name="listaAutores">
 				<xs:sequence />
 			</xs:complexType>
-			<xs:complexType name="listarAutoresResponse">
+			<xs:complexType name="listaAutoresResponse">
 				<xs:sequence>
-					<xs:element maxOccurs="unbounded" minOccurs="0" name="autor"
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="return"
 						type="tns:autor" />
 				</xs:sequence>
 			</xs:complexType>
@@ -25,23 +26,65 @@
 					<xs:element minOccurs="0" name="dataNascimento" type="xs:anySimpleType" />
 					<xs:element minOccurs="0" name="id" type="xs:long" />
 					<xs:element minOccurs="0" name="nome" type="xs:string" />
+					<xs:element minOccurs="0" name="refs">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="ref"
+									type="xs:anyURI" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
 				</xs:sequence>
 			</xs:complexType>
+			<xs:complexType name="livro">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="id" type="xs:long" />
+					<xs:element minOccurs="0" name="anoDePublicacao" type="xs:int" />
+					<xs:element minOccurs="0" name="autores">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="autor"
+									type="xs:string" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element minOccurs="0" name="editora" type="xs:string" />
+					<xs:element minOccurs="0" name="nome" type="xs:string" />
+					<xs:element minOccurs="0" name="resumo" type="xs:string" />
+					<xs:element minOccurs="0" name="dataDeCriacao" type="xs:anySimpleType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="eBook">
+				<xs:complexContent>
+					<xs:extension base="tns:livro">
+						<xs:sequence>
+							<xs:element minOccurs="0" name="formato" type="tns:formato" />
+						</xs:sequence>
+					</xs:extension>
+				</xs:complexContent>
+			</xs:complexType>
+			<xs:simpleType name="formato">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="pdf" />
+					<xs:enumeration value="mobi" />
+					<xs:enumeration value="epub" />
+				</xs:restriction>
+			</xs:simpleType>
 		</xs:schema>
 	</wsdl:types>
-	<wsdl:message name="listarAutoresResponse">
-		<wsdl:part element="tns:listarAutoresResponse" name="parameters">
+	<wsdl:message name="listaAutoresResponse">
+		<wsdl:part element="tns:listaAutoresResponse" name="parameters">
 		</wsdl:part>
 	</wsdl:message>
-	<wsdl:message name="listarAutores">
-		<wsdl:part element="tns:listarAutores" name="parameters">
+	<wsdl:message name="listaAutores">
+		<wsdl:part element="tns:listaAutores" name="parameters">
 		</wsdl:part>
 	</wsdl:message>
 	<wsdl:portType name="AutoresService">
-		<wsdl:operation name="listarAutores">
-			<wsdl:input message="tns:listarAutores" name="listarAutores">
+		<wsdl:operation name="listaAutores">
+			<wsdl:input message="tns:listaAutores" name="listaAutores">
 			</wsdl:input>
-			<wsdl:output message="tns:listarAutoresResponse" name="listarAutoresResponse">
+			<wsdl:output message="tns:listaAutoresResponse" name="listaAutoresResponse">
 			</wsdl:output>
 		</wsdl:operation>
 	</wsdl:portType>
@@ -50,12 +93,12 @@
 		<soap:binding style="document"
 			transport="http://schemas.xmlsoap.org/soap/http" />
 		<wsp:PolicyReference URI="#DefaultSecureServicePolicy" />
-		<wsdl:operation name="listarAutores">
+		<wsdl:operation name="listaAutores">
 			<soap:operation soapAction="" style="document" />
-			<wsdl:input name="listarAutores">
+			<wsdl:input name="listaAutores">
 				<soap:body use="literal" />
 			</wsdl:input>
-			<wsdl:output name="listarAutoresResponse">
+			<wsdl:output name="listaAutoresResponse">
 				<soap:body use="literal" />
 			</wsdl:output>
 		</wsdl:operation>
@@ -63,7 +106,8 @@
 	<wsdl:service name="AutoresServiceService">
 		<wsdl:port binding="tns:AutoresServiceServiceSoapBinding"
 			name="AutoresServicePort">
-			<soap:address location="ADDRESS" />
+			<soap:address
+				location="ADDRESS" />
 		</wsdl:port>
 	</wsdl:service>
 

@@ -55,6 +55,7 @@ public class Autor {
 	@XmlElementWrapper(name = "refs")
 	@XmlElement(name = "ref")
 	public List<URL> getRefs() throws HTTPException, IOException {
+		/*
 		String autor = URLEncoder.encode(nome, "UTF-8");
 		String searchString = new StringBuilder(
 				"/ajax/services/search/web?v=1.0&q=%22").append(autor)
@@ -84,6 +85,7 @@ public class Autor {
 				return responseList;
 			}
 		}
+		*/
 
 		return Collections.emptyList();
 	}
