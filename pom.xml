@@ -33,5 +33,6 @@
     <module>soa-cap05</module>
     <module>soa-cap06-estoque</module>
     <module>soa-cap06-chaves</module>
+    <module>soa-cap06-estoque-cliente</module>
   </modules>
 </project>
