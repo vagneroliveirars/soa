@@ -34,5 +34,6 @@
     <module>soa-cap06-estoque</module>
     <module>soa-cap06-chaves</module>
     <module>soa-cap06-estoque-cliente</module>
+    <module>soa-cap07-modelocanonico</module>
   </modules>
 </project>
