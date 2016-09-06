@@ -36,5 +36,7 @@
     <module>soa-cap06-estoque-cliente</module>
     <module>soa-cap07-modelocanonico</module>
     <module>soa-cap07-contractfirst</module>
+    <module>soa-cap07-wsaddressing-servidor</module>
+    <module>soa-cap07-wsaddressing-cliente</module>
   </modules>
 </project>
